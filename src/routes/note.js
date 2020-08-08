@@ -29,10 +29,21 @@ noteRoute.post('/add', async (request, response) => {
 })
 
 
+noteRoute.get('/note/:id', async (request, response) => {
+
+    let result = await Note.findById(request.params.id)
+        .then(result => {
+            if (!result) return jsonErrorResponse(response, 404, 'not found')
+            jsonResponse(response, result)
+        })
+        .catch(error => jsonErrorResponse(response, 500, error))
+})
+
+
 noteRoute.put('/update/:id', async (request, response) => {
 
     let {error} = validateNote(request.body)
-    if (error) return jsonErrorResponse(response , 400, error.details[0].message)
+    if (error) return jsonErrorResponse(response, 400, error.details[0].message)
 
     let note = await Note.findByIdAndUpdate(request.params.id, {
         title: request.body.title,
@@ -46,12 +57,14 @@ noteRoute.put('/update/:id', async (request, response) => {
 })
 
 
-noteRoute.delete('/delete/:id' , async (request , response)=>{
+noteRoute.delete('/delete/:id', async (request, response) => {
 
     logger.info(request.params.id)
     let result = await Note.findByIdAndDelete(request.params.id)
-        .then(result => {if (!result) jsonErrorResponse(response, 400, 'not found')
-        response.send(result)})
+        .then(result => {
+            if (!result) jsonErrorResponse(response, 400, 'not found')
+            response.send(result)
+        })
         .catch(error => jsonErrorResponse(response, 500, error))
 })
 
