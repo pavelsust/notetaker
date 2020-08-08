@@ -1,5 +1,6 @@
 const noteRoute = require('express').Router()
 const logger = require('node-color-log')
+const {json} = require("rc");
 const {jsonErrorResponse, jsonResponse, jsonError} = require('./../../utils/jsonResponse')
 const {Note, validateNote} = require('../model/addnote_model')
 
@@ -22,7 +23,7 @@ noteRoute.post('/add', async (request, response) => {
     let result = await note.save()
         .then(result => {
             if (!result) return jsonErrorResponse(response, 500, result)
-            jsonResponse(response, result)
+            noteAdded(response)
         })
         .catch(error => jsonErrorResponse(response, 500, error))
 
@@ -67,5 +68,12 @@ noteRoute.delete('/delete/:id', async (request, response) => {
         })
         .catch(error => jsonErrorResponse(response, 500, error))
 })
+
+
+function noteAdded(response) {
+    response.set({'content-type': 'application/json; charset=utf-8'});
+    return response.json({success: true})
+
+}
 
 module.exports = noteRoute
